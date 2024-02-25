@@ -13,7 +13,15 @@ import {
 } from '@/components/ui/select'
 
 import { Button } from '@/components/ui/button'
-import { Form } from '@/components/ui/form'
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage
+} from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
 	aspectRatioOptions,
@@ -27,8 +35,8 @@ import { AspectRatioKey, debounce, deepMergeObjects } from '@/lib/utils'
 import MediaUploader from './MediaUploader'
 import TransformedImage from './TransformedImage'
 import { updateCredits } from '@/lib/actions/user.actions'
-import { addImage, updateImage } from '@/lib/actions/image.actions'
 import { getCldImageUrl } from 'next-cloudinary'
+import { addImage, updateImage } from '@/lib/actions/image.actions'
 import { useRouter } from 'next/navigation'
 import { InsufficientCreditsModal } from './InsufficientCreditsModal'
 
@@ -57,57 +65,6 @@ const TransformationForm = ({
 	const [transformationConfig, setTransformationConfig] = useState(config)
 	const [isPending, startTransition] = useTransition()
 	const router = useRouter()
-
-	const onSelectFieldHandler = (
-		value: string,
-		onChangeField: (value: string) => void
-	) => {
-		const imageSize = aspectRatioOptions[value as AspectRatioKey]
-
-		setImage((prevState: any) => ({
-			...prevState,
-			aspectRatio: imageSize.aspectRatio,
-			width: imageSize.width,
-			height: imageSize.height
-		}))
-
-		setNewTransformation(transformationType.config)
-
-		return onChangeField(value)
-	}
-
-	const onInputChangeHandler = (
-		fieldName: string,
-		value: string,
-		type: string,
-		onChangeField: (value: string) => void
-	) => {
-		debounce(() => {
-			setNewTransformation((prevState: any) => ({
-				...prevState,
-				[type]: {
-					...prevState?.[type],
-					[fieldName === 'prompt' ? 'prompt' : 'to']: value
-				}
-			}))
-		}, 1000)()
-
-		return onChangeField(value)
-	}
-
-	const onTransformHandler = async () => {
-		setIsTransforming(true)
-
-		setTransformationConfig(
-			deepMergeObjects(newTransformation, transformationConfig)
-		)
-
-		setNewTransformation(null)
-
-		startTransition(async () => {
-			await updateCredits(userId, creditFee)
-		})
-	}
 
 	const initialValues =
 		data && action === 'Update'
@@ -193,6 +150,57 @@ const TransformationForm = ({
 		setIsSubmitting(false)
 	}
 
+	const onSelectFieldHandler = (
+		value: string,
+		onChangeField: (value: string) => void
+	) => {
+		const imageSize = aspectRatioOptions[value as AspectRatioKey]
+
+		setImage((prevState: any) => ({
+			...prevState,
+			aspectRatio: imageSize.aspectRatio,
+			width: imageSize.width,
+			height: imageSize.height
+		}))
+
+		setNewTransformation(transformationType.config)
+
+		return onChangeField(value)
+	}
+
+	const onInputChangeHandler = (
+		fieldName: string,
+		value: string,
+		type: string,
+		onChangeField: (value: string) => void
+	) => {
+		debounce(() => {
+			setNewTransformation((prevState: any) => ({
+				...prevState,
+				[type]: {
+					...prevState?.[type],
+					[fieldName === 'prompt' ? 'prompt' : 'to']: value
+				}
+			}))
+		}, 1000)()
+
+		return onChangeField(value)
+	}
+
+	const onTransformHandler = async () => {
+		setIsTransforming(true)
+
+		setTransformationConfig(
+			deepMergeObjects(newTransformation, transformationConfig)
+		)
+
+		setNewTransformation(null)
+
+		startTransition(async () => {
+			await updateCredits(userId, creditFee)
+		})
+	}
+
 	useEffect(() => {
 		if (image && (type === 'restore' || type === 'removeBackground')) {
 			setNewTransformation(transformationType.config)
@@ -221,7 +229,8 @@ const TransformationForm = ({
 							<Select
 								onValueChange={(value) =>
 									onSelectFieldHandler(value, field.onChange)
-								}>
+								}
+								value={field.value}>
 								<SelectTrigger className='select-field'>
 									<SelectValue placeholder='Select size' />
 								</SelectTrigger>
