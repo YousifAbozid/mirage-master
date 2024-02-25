@@ -15,10 +15,11 @@ const Sidebar = () => {
 			<div className='flex size-full flex-col gap-4'>
 				<Link href='/' className='sidebar-logo'>
 					<Image
-						src='/assets/images/logo-text.svg'
+						src='/assets/images/logo.svg'
 						alt='logo'
-						width={180}
-						height={28}
+						width={200}
+						height={30}
+						className='ml-6'
 					/>
 				</Link>
 
